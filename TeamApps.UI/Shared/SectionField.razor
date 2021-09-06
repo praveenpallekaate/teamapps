@@ -1,0 +1,766 @@
+﻿@using Core.Utilities
+@using TeamApps.Shared
+@inherits SectionFieldBase
+
+<div class="@Class">
+    @switch (EditedDetail.Type)
+    {
+        case KeyValueTypes.person:
+            break;
+        case KeyValueTypes.boolean:
+            switch (Mode)
+            {
+                case Modes.add:
+                case Modes.edit:
+                    <div class="mb-05">
+                        <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                    </div>
+                    <div>
+                        <MatRadioGroup Value="@EditedDetail.Value"
+                                       ValueChanged="@(async e => {
+                                                           EditedDetail.Value = e;
+                                                           await UpdateParentAsync();
+                                                       })"
+                                       TValue="string">
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                foreach (var item in EditedDetail.KeyValues)
+                                {
+                                    <MatRadioButton Value="@item.Name" Label="@item.Name" />
+                                }
+                            }
+                        </MatRadioGroup>
+                    </div>
+
+                    break;
+                case Modes.read:
+                    <LabelTextField Label="@EditedDetail.Name" Value="@EditedDetail.Value" />
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        case KeyValueTypes.array:
+            break;
+        case KeyValueTypes.list:
+            switch (EditedDetail.SubType)
+            {
+                case KeyValueTypes.person:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var personItem in EditedDetail.KeyValues)
+                                    {
+                                        <div class="row d-flex mt-05">
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Name"
+                                                                Value="@personItem.Name"
+                                                                OnTextChange="async e => {
+                                                                                  personItem.Name = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Email"
+                                                                Value="@personItem.Value"
+                                                                OnTextChange="async e => {
+                                                                                  personItem.Value = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-05">
+                                            @if (CommonUtils.IsValidCollection(personItem.KeyValues))
+                                            {
+                                                foreach (var personTag in personItem.KeyValues)
+                                                {
+                                                    <div class="mr-05"><MatChip Label="@personTag.Name" /></div>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="d-flex mt-05">
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Tag"
+                                                                Value="@personItem.Description"
+                                                                OnTextChange="e => personItem.Description = e"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div class="mt-03">
+                                                <IconButton Icon="add"
+                                                            ToolTip="Add Tag"
+                                                            OnClick="() => AddTagAsync(personItem)" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <IconButton Icon="add" ToolTip="Add Item" OnClick="AddItemToList" />
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var personItem in EditedDetail.KeyValues)
+                                    {
+                                        if (!string.IsNullOrEmpty(personItem.Name))
+                                        {
+                                            <div class="row d-flex mt-05">
+                                                <div class="mr-05">
+                                                    <UserCard Name="@personItem.Name">
+                                                        <ChildSection>
+                                                            <MatCaption Class="italic ft-07">@personItem.Value</MatCaption>
+                                                        </ChildSection>
+                                                    </UserCard>
+                                                </div>
+                                                @if (CommonUtils.IsValidCollection(personItem.KeyValues))
+                                                {
+                                                    foreach (var personTag in personItem.KeyValues)
+                                                    {
+                                                        <div class="mr-05">
+                                                            <MatChip Label="@personTag.Name" />
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                }
+                            </div>
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.link:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="d-flex mt-05">
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Name"
+                                                                Value="@item.Name"
+                                                                OnTextChange="async e => {
+                                                                                  item.Name = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div class="mr-05">
+                                                <LabelTextField Label="URL"
+                                                                Value="@item.Value"
+                                                                OnTextChange="async e => {
+                                                                                  item.Value = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <IconButton Icon="add" ToolTip="Add Item" OnClick="AddItemToList" />
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                foreach (var item in EditedDetail.KeyValues)
+                                {
+                                    <div class="mb-05">
+                                        <LabelTextField Label="@item.Name" Value="@item.Value" />
+                                    </div>
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.clicklink:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="d-flex mt-05">
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Name"
+                                                                Value="@item.Name"
+                                                                OnTextChange="async e => {
+                                                                                  item.Name = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div>
+                                                <LabelTextField Label="URL"
+                                                                Value="@item.Value"
+                                                                OnTextChange="async e => {
+                                                                                  item.Value = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <IconButton Icon="edit" ToolTip="Add Item" OnClick="AddItemToList" />
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                foreach (var item in EditedDetail.KeyValues)
+                                {
+                                    <div class="d-flex">
+                                        <div class="mr-05">
+                                            <MatChip Label="@item.Name"
+                                                     Value="@item.Value"
+                                                     TrailingIcon="tab_unselected"
+                                                     TrailingIconClick="e => OpenUrlAsync(e.Value.ToString())" />
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.options:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="mb-05">
+                                            <MatCheckbox Label="@item.Name"
+                                                         Value="item.Flag"
+                                                         ValueChanged="async (bool? e) => await UpdateSelectedOptionsAsync(e, item, EditedDetail)" />
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            @if (CommonUtils.IsValidCollection(EditedDetail.Values))
+                            {
+                                <div class="d-flex flex-wrap">
+                                    @foreach (var item in EditedDetail.Values)
+                                    {
+                                        <div class="mr-05 mb-03">
+                                            <MatChip Label="@item" />
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.tagitem:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="mb-05">
+                                            <div class="mr-05">
+                                                <LabelTextField Value="@item.Name"
+                                                                OnTextChange="async e => {
+                                                                                  item.Name = e;
+                                                                                  await UpdateParentAsync();
+                                                                              }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div class="d-flex mt-05">
+                                                @if (CommonUtils.IsValidCollection(item.KeyValues))
+                                                {
+                                                    foreach (var personTag in item.KeyValues)
+                                                    {
+                                                        <div class="mr-05"><MatChip Label="@personTag.Name" /></div>
+                                                    }
+                                                }
+                                            </div>
+                                            <div class="d-flex mt-05">
+                                                <div class="mr-05">
+                                                    <LabelTextField Label="Tag"
+                                                                    Value="@item.Description"
+                                                                    OnTextChange="e => item.Description = e"
+                                                                    InputType="InputTypes.text" />
+                                                </div>
+                                                <div class="mt-03">
+                                                    <IconButton Icon="add"
+                                                                ToolTip="Add Tag"
+                                                                OnClick="() => AddTagAsync(item)" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <IconButton Icon="add" ToolTip="Add Item" OnClick="AddItemToList" />
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                foreach (var item in EditedDetail.KeyValues)
+                                {
+                                    <div class="d-flex mb-05">
+                                        <div class="mr-05 pt-03">
+                                            <MatBody2>@item.Name</MatBody2>
+                                        </div>
+                                        <div class="d-flex">
+                                            @if (CommonUtils.IsValidCollection(item.KeyValues))
+                                            {
+                                                foreach (var tag in item.KeyValues)
+                                                {
+                                                    <div class="mr-05">
+                                                        <MatChip Label="@tag.Name" />
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.item:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="mb-05">
+                                            <LabelTextField Value="@item.Name"
+                                                            OnTextChange="async e => {
+                                                                                item.Name = e;
+                                                                                await UpdateParentAsync();
+                                                                            }"
+                                                            InputType="InputTypes.text" />
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <IconButton Icon="add" ToolTip="Add Item" OnClick="AddItemToList" />
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            <div class="mb-05">
+                                <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                            </div>
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                <div class="d-flex flex-wrap">
+                                    @foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="mr-05 mb-03">
+                                            <MatChip Label="@item.Name" />
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.comment:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div class="d-flex mb-05">
+                                <div class="flex-grow-1 mr-05">
+                                    <LabelTextField Label=""
+                                                    Value="@NewValue"
+                                                    IsFullWidth="true"
+                                                    OnTextChange="e => NewValue = e"
+                                                    InputType="InputTypes.multilinetext" />
+                                </div>
+                                <div>
+                                    <IconButton Icon="add" ToolTip="Add Comment" OnClick="AddCommentAsync" />
+                                </div>
+                            </div>
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                foreach (var item in EditedDetail.KeyValues.OrderByDescending(i => i.Id))
+                                {
+                                    <div class="mb-1">
+                                        <UserCard Name="@item.Name">
+                                            <ChildSection>
+                                                <MatCaption Class="mb-05">
+                                                    <cite>@item.Description</cite>
+                                                </MatCaption>
+                                                <MatBody1>@item.Value</MatBody1>
+                                            </ChildSection>
+                                        </UserCard>
+                                    </div>
+                                }
+                            }
+
+                            break;
+                        case Modes.read:
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                foreach (var item in EditedDetail.KeyValues.OrderByDescending(i => i.Id))
+                                {
+                                    <div class="mb-1">
+                                        <UserCard Name="@item.Name">
+                                            <ChildSection>
+                                                <MatCaption Class="mb-05">
+                                                    <cite>@item.Description</cite>
+                                                </MatCaption>
+                                                <MatBody1>@item.Value</MatBody1>
+                                            </ChildSection>
+                                        </UserCard>
+                                    </div>
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                case KeyValueTypes.timeline:
+                    switch (Mode)
+                    {
+                        case Modes.add:
+                        case Modes.edit:
+                            <div>
+                                @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                                {
+                                    foreach (var item in EditedDetail.KeyValues)
+                                    {
+                                        <div class="d-flex mb-05">
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Name"
+                                                                Value="@item.Name"
+                                                                OnTextChange="async e => {
+                                                                                item.Name = e;
+                                                                                await UpdateParentAsync();
+                                                                            }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div class="mr-05">
+                                                <LabelTextField Label="Description"
+                                                                Value="@item.Description"
+                                                                OnTextChange="async e => {
+                                                                                item.Description = e;
+                                                                                await UpdateParentAsync();
+                                                                            }"
+                                                                InputType="InputTypes.text" />
+                                            </div>
+                                            <div>
+                                                <LabelTextField Label="Date"
+                                                                DateValue="@(string.IsNullOrEmpty(item.Value) ? (DateTime?)null : DateTime.Parse(item.Value))"
+                                                                OnDateChange="async e => {
+                                                                                    item.Value = e.HasValue ? e.Value.ToShortDateString() : string.Empty;
+                                                                                    await UpdateParentAsync();
+                                                                                }"
+                                                                InputType="InputTypes.date" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div>
+                                <IconButton Icon="add" ToolTip="Add Item" OnClick="AddItemToList" />
+                            </div>
+
+                            break;
+                        case Modes.read:
+                            @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                            {
+                                <TimeLine Items="EditedDetail.KeyValues
+                                            .OrderByDescending(i => DateTime.Parse(string.IsNullOrEmpty(i.Value) ? DateTime.MaxValue.ToString() : i.Value))
+                                            .ToList()"/>
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        case KeyValueTypes.help:
+            break;
+        case KeyValueTypes.link:
+            switch (Mode)
+            {
+                case Modes.add:
+                case Modes.edit:
+                    <div class="mb-05">
+                        <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                    </div>
+                    <div class="d-flex">
+                        <div class="mr-05">
+                            <LabelTextField Label="Name"
+                                            Value="@EditedDetail.Name"
+                                            OnTextChange="async e => {
+                                                                EditedDetail.Name = e;
+                                                                await UpdateParentAsync();
+                                                            }"
+                                            InputType="InputTypes.text" />
+                        </div>
+                        <div class="mr-05">
+                            <LabelTextField Label="URL"
+                                            Value="@EditedDetail.Value"
+                                            OnTextChange="async e => {
+                                                                EditedDetail.Value = e;
+                                                                await UpdateParentAsync();
+                                                            }"
+                                            InputType="InputTypes.text" />
+                        </div>
+                    </div>
+
+                    break;
+                case Modes.read:
+                    <div class="d-flex">
+                        <LabelTextField Label="@EditedDetail.Name" Value="@EditedDetail.Value" />
+                    </div>
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        case KeyValueTypes.clicklink:
+            switch (Mode)
+            {
+                case Modes.add:
+                case Modes.edit:
+                    <div class="mb-05">
+                        <MatCaption Class="label">@EditedDetail.Name</MatCaption>
+                    </div>
+                    <div class="d-flex">
+                        <div class="mr-05">
+                            <LabelTextField Label="Name"
+                                            Value="@EditedDetail.Name"
+                                            OnTextChange="async e => {
+                                                                EditedDetail.Name = e;
+                                                                await UpdateParentAsync();
+                                                            }"
+                                            InputType="InputTypes.text" />
+                        </div>
+                        <div>
+                            <LabelTextField Label="URL"
+                                            Value="@EditedDetail.Value"
+                                            OnTextChange="async e => {
+                                                                EditedDetail.Value = e;
+                                                                await UpdateParentAsync();
+                                                            }"
+                                            InputType="InputTypes.text" />
+                        </div>
+                    </div>
+
+                    break;
+                case Modes.read:
+                    <MatChip Label="@EditedDetail.Name"
+                             Value="@EditedDetail.Value"
+                             TrailingIcon="tab_unselected"
+                             TrailingIconClick="e => OpenUrlAsync(e.Value.ToString())" />
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        case KeyValueTypes.options:
+            break;
+        case KeyValueTypes.tagitem:
+            switch (Mode)
+            {
+                case Modes.add:
+                case Modes.edit:
+                    <div class="mb-05">
+                        <LabelTextField Label="@EditedDetail.Name"
+                                        Value="@EditedDetail.Value"
+                                        OnTextChange="async e => {
+                                                            EditedDetail.Value = e;
+                                                            await UpdateParentAsync();
+                                                        }"
+                                        InputType="InputTypes.text" />
+                    </div>
+
+                    break;
+                case Modes.read:
+                    <div class="mb-05 d-flex">
+                        <div class="mr-05">
+                            <LabelTextField Label="@EditedDetail.Name" Value="@EditedDetail.Value" />
+                        </div>
+                        @if (CommonUtils.IsValidCollection(EditedDetail.KeyValues))
+                        {
+                            foreach (var item in EditedDetail.KeyValues)
+                            {
+                                <div class="mr-05">
+                                    <MatChip Label="@item.Name" />
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        case KeyValueTypes.item:
+            switch (Mode)
+            {
+                case Modes.add:
+                case Modes.edit:
+                    <div class="mb-05">
+                        <LabelTextField Label="@EditedDetail.Name"
+                                        Value="@EditedDetail.Value"
+                                        OnTextChange="async e => {
+                                                            EditedDetail.Value = e;
+                                                            await UpdateParentAsync();
+                                                        }"
+                                        InputType="InputTypes.text" />
+                    </div>
+
+                    break;
+                case Modes.read:
+                    <div class="mb-05">
+                        <LabelTextField Label="@EditedDetail.Name" Value="@EditedDetail.Value" />
+                    </div>
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        case KeyValueTypes.textsummaryitem:
+            switch (Mode)
+            {
+                case Modes.add:
+                case Modes.edit:
+                    <div class="mb-05">
+                        <LabelTextField Label="@EditedDetail.Name"
+                                        Value="@EditedDetail.Value"
+                                        OnTextChange="async e => {
+                                                            EditedDetail.Value = e;
+                                                            await UpdateParentAsync();
+                                                        }"
+                                        InputType="InputTypes.multilinetext" />
+                    </div>
+
+                    break;
+                case Modes.read:
+                    <div class="mb-05">
+                        <LabelTextField Label="@EditedDetail.Name" Value="@EditedDetail.Value" />
+                    </div>
+
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        default:
+            break;
+    }
+</div>

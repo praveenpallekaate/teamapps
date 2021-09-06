@@ -1,0 +1,19 @@
+﻿@using TeamApps.Shared
+
+<div class="timeline">
+    @for (int i = 0; i < Items.Count(); i++)
+    {
+        if (i % 2 == 0)
+        {
+            <TimeLineItem Item="@Items[i]" />
+        }
+        else
+        {
+            <TimeLineItem Item="@Items[i]" IsOpposite="true"/>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public List<KeyValue> Items { get; set; }
+}

@@ -1,0 +1,21 @@
+﻿<MatDialog Class="@AppModalDetails.Class" @bind-IsOpen="@AppModalDetails.Open">
+    <MatDialogTitle Class="@titleClass">@AppModalDetails.Title</MatDialogTitle>
+    <MatDialogContent Class="@AppModalDetails.ContentClass">
+        @Content
+    </MatDialogContent>
+    <MatDialogActions Class="@AppModalDetails.ActionClass">
+        @ActionContent
+    </MatDialogActions>
+</MatDialog>
+
+@code {
+
+
+    [Parameter] public AppModalDetail AppModalDetails { get; set; }
+
+    [Parameter] public RenderFragment Content { get; set; }
+
+    [Parameter] public RenderFragment ActionContent { get; set; }
+
+    private string titleClass => "ml-1 mb-05 " + AppModalDetails.TitleClass;
+}

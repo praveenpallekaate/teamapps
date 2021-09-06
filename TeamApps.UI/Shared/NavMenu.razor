@@ -1,0 +1,40 @@
+﻿@using TeamApps.Shared
+@inject NavigationManager NavigationManager
+
+<MatNavMenu>
+    <MatNavItem @onclick="() => HandleMenuNavigate(NavigationPages.home)"><MatIcon Icon="home" />&nbsp; Home</MatNavItem>
+    <MatDivider />
+    <MatNavItem @onclick="() => HandleMenuNavigate(NavigationPages.resources)"><MatIcon Icon="nature_people" />&nbsp; Resources</MatNavItem>
+    <MatDivider />
+    <MatNavItem @onclick="() => HandleMenuNavigate(NavigationPages.health)"><MatIcon Icon="fitness_center" />&nbsp; Apps Health</MatNavItem>
+    <MatDivider />
+    <MatNavItem @onclick="() => HandleMenuNavigate(NavigationPages.jobs)"><MatIcon Icon="restore" />&nbsp; Jobs</MatNavItem>
+    <MatDivider />
+</MatNavMenu>
+
+@code {
+    private void HandleMenuNavigate(NavigationPages navigationPage)
+    {
+        switch (navigationPage)
+        {
+            case NavigationPages.home:
+                NavigationManager.NavigateTo("/");
+
+                break;
+            case NavigationPages.resources:
+                NavigationManager.NavigateTo("/resources");
+
+                break;
+            case NavigationPages.health:
+                //NavigationManager.NavigateTo("/health");
+
+                break;
+            case NavigationPages.jobs:
+                //NavigationManager.NavigateTo("/jobs");
+
+                break;
+            default:
+                break;
+        }
+    }
+}

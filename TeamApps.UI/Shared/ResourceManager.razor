@@ -1,0 +1,454 @@
+﻿@using TeamApps.Shared
+@using Core.Utilities
+@inherits ResourceManagerBase
+
+<div class="mb-05 ft-1 bold">Resource Details</div>
+<MatCard Class="fullwidth">
+    <MatCardContent Class="p-05">
+        @switch (ResourceManagerPage.Mode)
+        {
+            case Modes.add:
+                break;
+            case Modes.edit:
+                // Edit buttons
+                <div class="row d-flex mb-05">
+                    <div class="flex-grow-1 mr-05">
+                        <LabelTextField Value="@ResourceManagerPage.EditedDetail.Name"
+                                        OnTextChange="e => ResourceManagerPage.EditedDetail.Name = e"
+                                        InputType="InputTypes.text" />
+                    </div>
+                    @if (ResourceManagerPage.IsLoading)
+                    {
+                        <div class="mr-05">
+                            <Loader Message="@ResourceManagerPage.LoadingMessage" />
+                        </div>
+                    }
+                    <div class="mr-05">
+                        <IconButton Icon="delete"
+                                    ToolTip="Delete"
+                                    Disabled="!ResourceManagerPage.CanEdit"
+                                    OnClick="RemoveResourceAsync" />
+                    </div>
+                    <div class="mr-05">
+                        <IconButton Icon="cancel"
+                                    ToolTip="Cancel"
+                                    Disabled="!ResourceManagerPage.CanEdit"
+                                    OnClick="() => ToggleMode(Modes.read)" />
+                    </div>
+                    <div>
+                        <IconButton Icon="done_outline"
+                                    ToolTip="Update"
+                                    Disabled="!ResourceManagerPage.CanEdit"
+                                    OnClick="UpdateResourceAsync" />
+                    </div>
+                </div>
+
+                // Resource edit controls
+                <div class="row d-flex mb-1">
+                    <div class="mr-11">
+                        <LabelTextField Label="Email"
+                                        Value="@ResourceManagerPage.EditedDetail.Email"
+                                        OnTextChange="e => ResourceManagerPage.EditedDetail.Email = e"
+                                        InputType="InputTypes.text" />
+                    </div>
+                    <div class="mr-11">
+                        <LabelTextField Label="Team"
+                                        Value="@ResourceManagerPage.EditedDetail.Team"
+                                        SelectOptions="Teams.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                        OnTextChange="e => ResourceManagerPage.EditedDetail.Team = e"
+                                        InputType="InputTypes.select" />
+                    </div>
+                    <div class="mr-11">
+                        <LabelTextField Label="Supervisor"
+                                        Value="@ResourceManagerPage.EditedDetail.Supervisor"
+                                        SelectOptions="Supervisors.Where(j => j != ResourceManagerPage.EditedDetail.Name).Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                        OnTextChange="e => ResourceManagerPage.EditedDetail.Supervisor = e"
+                                        InputType="InputTypes.select" />
+                    </div>
+                    <div class="mr-11">
+                        <LabelTextField Label="Start Date"
+                                        DateValue="@ResourceManagerPage.EditedDetail.StartDate"
+                                        OnDateChange="e => ResourceManagerPage.EditedDetail.StartDate = e"
+                                        InputType="InputTypes.date" />
+                    </div>
+                    <div>
+                        <LabelTextField Label="WOW Id"
+                                        Value="@ResourceManagerPage.EditedDetail.WowId"
+                                        OnTextChange="e => ResourceManagerPage.EditedDetail.WowId = e"
+                                        InputType="InputTypes.text" />
+                    </div>
+                </div>
+
+                // Allocation edit
+                <div class="row d-flex">
+                    <div class="mr-05 pt-1 min-width-8">
+                        <MatBody1>Allocations</MatBody1>
+                    </div>
+                    <div class="mr-05">
+                        <LabelTextField Label="Year"
+                                        Value="@ResourceManagerPage.AllocationDetail.Year"
+                                        SelectOptions="ResourceManagerPage.Years.Select((i, index) => new SelectOption { Text = i.ToString(), Value = i.ToString() })"
+                                        OnTextChange="@(e => SelectYear(Sections.Allocation, Modes.edit, e))"
+                                        InputType="InputTypes.select" />
+                    </div>
+                    <div class="mr-05 pt-05">
+                        <IconButton Icon="add"
+                                    ToolTip="Add Allocation"
+                                    Disabled="!ResourceManagerPage.CanEdit"
+                                    OnClick="() => ToggleAddAllocation(ModalTypes.addallocation)" />
+                    </div>
+                    @if (ResourceManagerPage.AllocationDetail.IsLoading)
+                    {
+                        <div>
+                            <Loader Message="@ResourceManagerPage.AllocationDetail.LoadingMessage" />
+                        </div>
+                    }
+                </div>
+                <MatDivider Class="mb-05" />
+
+                @if (CommonUtils.IsValidCollection(ResourceManagerPage.AllocationDetail.Allocations))
+                {
+                    foreach (var month in ResourceManagerPage.AllocationDetail.Allocations.Select(i => i.Id).Distinct())
+                    {
+                        <div class="mb-05">
+                            <LabelTextField Label="@($"{AppConstants.Months[month - 1]} {ResourceManagerPage.AllocationDetail.Year}")"
+                                            Value="@ResourceManagerPage.AllocationDetail.Allocations?.Where(j => j.Id == month)?.Sum(k => int.Parse(k.Value)).ToString()" />
+                        </div>
+                        @foreach (var allocation in ResourceManagerPage.AllocationDetail.Allocations.Where(l => l.Id == month))
+                        {
+                            <div class="d-flex mb-05">
+                                <div class="mr-11">
+                                    <LabelTextField Label="Project"
+                                                    Value="@allocation.Name"
+                                                    OnTextChange="e => allocation.Name = e"
+                                                    InputType="InputTypes.text" />
+                                </div>
+                                <div class="mr-11">
+                                    <LabelTextField Label="Demand / Request"
+                                                    Value="@allocation.Description"
+                                                    OnTextChange="e => allocation.Description = e"
+                                                    InputType="InputTypes.text" />
+                                </div>
+                                <div class="mr-11">
+                                    <LabelTextField Label="Value"
+                                                    Value="@allocation.Value"
+                                                    OnTextChange="e => allocation.Value = e"
+                                                    InputType="InputTypes.text" />
+                                </div>
+                                @foreach (var type in AppConstants.WorkTypes)
+                                {
+                                    <MatCheckbox Class="mr-05"
+                                                 Label="@type"
+                                                 Value="@(CommonUtils.IsValidCollection(allocation.KeyValues) && allocation.KeyValues.FirstOrDefault(i => i.Name == type) is KeyValue)"
+                                                 ValueChanged="(bool? e) => UpdateWorkType(allocation.AllocationId, type, e)" />
+                                }
+                            </div>
+                        }
+                    }
+                }
+
+                // Milestone details
+                <div class="row">
+                    <div class="min-width-8">
+                        <MatBody1>Milestones</MatBody1>
+                    </div>
+                </div>
+                <MatDivider Class="mb-05" />
+                <div class="row d-flex mb-05">
+                    <div class="mr-05">
+                        <LabelTextField Label="Name"
+                                        Value="@ResourceManagerPage.NewMilestone.Name"
+                                        OnTextChange="e => ResourceManagerPage.NewMilestone.Name = e"
+                                        InputType="InputTypes.text" />
+                    </div>
+                    <div class="mr-05">
+                        <LabelTextField Label="Description"
+                                        Value="@ResourceManagerPage.NewMilestone.Description"
+                                        OnTextChange="e => ResourceManagerPage.NewMilestone.Description = e"
+                                        InputType="InputTypes.text" />
+                    </div>
+                    <div class="mr-05">
+                        <LabelTextField Label="Date"
+                                        DateValue="@(string.IsNullOrEmpty(ResourceManagerPage.NewMilestone.Value) ? (DateTime?)null : DateTime.Parse(ResourceManagerPage.NewMilestone.Value))"
+                                        OnDateChange="e => ResourceManagerPage.NewMilestone.Value = e.HasValue ? e.Value.ToShortDateString() : string.Empty"
+                                        InputType="InputTypes.date" />
+                    </div>
+                    <div class="pt-05">
+                        <IconButton Icon="add"
+                                    ToolTip="Add milestone"
+                                    OnClick="AddMilestone"/>
+                    </div>
+                </div>
+                @if (CommonUtils.IsValidCollection(ResourceManagerPage.EditedDetail.Milestones))
+                {
+                    <div class="row mb-05">
+                        @foreach (var milestone in ResourceManagerPage.EditedDetail.Milestones)
+                        {
+                            <div class="d-flex mb-05">
+                                <div class="mr-05">
+                                    <LabelTextField Label="Name"
+                                                    Value="@milestone.Name"
+                                                    OnTextChange="e => milestone.Name = e"
+                                                    InputType="InputTypes.text" />
+                                </div>
+                                <div class="mr-05">
+                                    <LabelTextField Label="Description"
+                                                    Value="@milestone.Description"
+                                                    OnTextChange="e => milestone.Description = e"
+                                                    InputType="InputTypes.text" />
+                                </div>
+                                <div class="mr-05">
+                                    <LabelTextField Label="Date"
+                                                    DateValue="@(string.IsNullOrEmpty(milestone.Value) ? (DateTime?)null : DateTime.Parse(milestone.Value))"
+                                                    OnDateChange="e => milestone.Value = e.HasValue ? e.Value.ToShortDateString() : string.Empty"
+                                                    InputType="InputTypes.date" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                break;
+            case Modes.read:
+                // Resource details
+                <div class="row d-flex mb-05">
+                    <div class="flex-grow-1 mr-05">
+                        <LabelTextField Value="@ResourceManagerPage.EditedDetail.Name" />
+                    </div>
+                    @if (ResourceManagerPage.CanEdit)
+                    {
+                        <div>
+                            <IconButton Icon="edit"
+                                        ToolTip="Edit"
+                                        OnClick="() => ToggleMode(Modes.edit)" />
+                        </div>
+                    }
+                </div>
+                <div class="row d-flex mb-1">
+                    <div class="mr-11">
+                        <LabelTextField Label="Email"
+                                        Value="@ResourceManagerPage.EditedDetail.Email" />
+                    </div>
+                    <div class="mr-11">
+                        <LabelTextField Label="Team"
+                                        Value="@ResourceManagerPage.EditedDetail.Team" />
+                    </div>
+                    <div class="mr-11">
+                        <LabelTextField Label="Supervisor"
+                                        Value="@ResourceManagerPage.EditedDetail.Supervisor" />
+                    </div>
+                    <div class="mr-11">
+                        <LabelTextField Label="Start Date"
+                                        Value="@ResourceManagerPage.EditedDetail.StartDate?.ToFormattedShortDate()" />
+                    </div>
+                    <div class="pt-1">
+                        <MatChip Label="WOW Dashboard"
+                                 Value="@($"{AppConstants.WowUrl}{ResourceManagerPage.EditedDetail.WowId}")"
+                                 TrailingIcon="tab_unselected"
+                                 TrailingIconClick="e => OpenUrlAsync(e.Value.ToString())" />
+                    </div>
+                </div>
+
+                // Allocation details
+                <div class="row d-flex">
+                    <div class="mr-05 pt-1 min-width-8">
+                        <MatBody1>Allocations</MatBody1>
+                    </div>
+                    <div class="mr-05">
+                        <LabelTextField Label="Year"
+                                        Value="@ResourceManagerPage.AllocationDetail.Year"
+                                        SelectOptions="ResourceManagerPage.Years.Select((i, index) => new SelectOption { Text = i.ToString(), Value = i.ToString() })"
+                                        OnTextChange="@(e => SelectYear(Sections.Allocation, Modes.read, e))"
+                                        InputType="InputTypes.select" />
+                    </div>
+                    @if (ResourceManagerPage.AllocationDetail.IsLoading)
+                    {
+                        <div>
+                            <Loader Message="@ResourceManagerPage.AllocationDetail.LoadingMessage" />
+                        </div>
+                    }
+                </div>
+                <MatDivider Class="mb-05" />
+                <div class="row d-flex mb-1">
+                    @if (CommonUtils.IsValidCollection(ResourceManagerPage.AllocationDetail.Monthly))
+                    {
+                        foreach (var month in ResourceManagerPage.AllocationDetail.Monthly)
+                        {
+                            <AppChart Class="mr-05"
+                                      Title="@($"{month.Title} {ResourceManagerPage.AllocationDetail.Year}")"
+                                      Labels="@month.Labels"
+                                      Values="@month.Values"
+                                      Type="ChartTypes.donut" />
+                        }
+                    }
+                </div>
+
+                // Work breakdown details
+                @if (CommonUtils.IsValidCollection(ResourceManagerPage.EditedDetail.Allocations))
+                {
+                    <div class="row d-flex">
+                        <div class="mr-05 pt-1 min-width-8">
+                            <MatBody1>Work Breakdown</MatBody1>
+                        </div>
+                        <div class="mr-05">
+                            <LabelTextField Label="Year"
+                                            Value="@ResourceManagerPage.WorkBreakdownDetail.Year"
+                                            SelectOptions="ResourceManagerPage.Years.Select((i, index) => new SelectOption { Text = i.ToString(), Value = i.ToString() })"
+                                            OnTextChange="@(e => SelectYear(Sections.WorkBreakdown, Modes.read, e))"
+                                            InputType="InputTypes.select" />
+                        </div>
+                        @if (ResourceManagerPage.WorkBreakdownDetail.IsLoading)
+                        {
+                            <div>
+                                <Loader Message="@ResourceManagerPage.WorkBreakdownDetail.LoadingMessage" />
+                            </div>
+                        }
+                    </div>
+                    <MatDivider Class="mb-05" />
+                    <div class="row d-flex mb-1">
+                        @if (CommonUtils.IsValidCollection(ResourceManagerPage.WorkBreakdownDetail.Overall?.Labels))
+                        {
+                            <AppChart Class="mr-05"
+                                      Title="@($"Overall Projects {ResourceManagerPage.WorkBreakdownDetail.Year}")"
+                                      Labels="@ResourceManagerPage.WorkBreakdownDetail.Overall.Labels"
+                                      Values="@ResourceManagerPage.WorkBreakdownDetail.Overall.Values"
+                                      Type="ChartTypes.pie" />
+                        }
+
+                        @if (CommonUtils.IsValidCollection(ResourceManagerPage.WorkBreakdownDetail.OverallType?.Labels))
+                        {
+                            <AppChart Title="@($"Work Type {ResourceManagerPage.WorkBreakdownDetail.Year}")"
+                                      Labels="@ResourceManagerPage.WorkBreakdownDetail.OverallType.Labels"
+                                      Values="@ResourceManagerPage.WorkBreakdownDetail.OverallType.Values"
+                                      Type="ChartTypes.pie" />
+                        }
+                    </div>
+                }
+
+                // Milestone details
+                @if (CommonUtils.IsValidCollection(ResourceManagerPage.ResourceMilestones))
+                {
+                    <div class="row">
+                        <div class="mr-05 min-width-8">
+                            <MatBody1>Milestones</MatBody1>
+                        </div>
+                    </div>
+                    <MatDivider Class="mb-05" />
+                    <div class="row mb-1">
+                        <TimeLine Items="ResourceManagerPage.ResourceMilestones" />
+                    </div>
+                }
+
+                <div class="row d-flex flex-row-reverse">
+                    <LabelTextField Label="Last Updated By"
+                                    Value="@ResourceManagerPage.EditedDetail.UpdatedUserDetail?.Name" />
+                </div>
+
+                break;
+            case Modes.prompt:
+                <div class="row mb-1">
+                    <MatBody1>Are you sure to remove this resource?</MatBody1>
+                </div>
+                <div class="row d-flex flex-row-reverse">
+                    <MatButton Label="Yes"
+                               OnClick="RemoveResourceAsync" />
+                    <MatButton Class="mr-05"
+                               Label="No"
+                               Outlined="true"
+                               OnClick="() => ToggleMode(Modes.read)" />
+                </div>
+
+                break;
+            default:
+                break;
+        }
+    </MatCardContent>
+</MatCard>
+
+@*Modal*@
+<AppModal AppModalDetails="ResourceManagerPage.AppModalDetails">
+    <Content>
+        @switch (ResourceManagerPage.ModalType)
+        {
+            case ModalTypes.addallocation:
+                <div class="mb-05">
+                    <LabelTextField Label="Year"
+                                    Value="@ResourceManagerPage.NewAllocation.Year"
+                                    SelectOptions="ResourceManagerPage.Years.Select((i, index) => new SelectOption { Text = i.ToString(), Value = i.ToString() })"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourceManagerPage.NewAllocation.Year = e"
+                                    InputType="InputTypes.select" />
+                </div>
+                <div class="mb-05">
+                    <LabelTextField Label="Month"
+                                    Value="@ResourceManagerPage.NewAllocation.Month"
+                                    SelectOptions="AppConstants.Months.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourceManagerPage.NewAllocation.Month = e"
+                                    InputType="InputTypes.select" />
+                </div>
+                <div class="mb-05">
+                    <LabelTextField Label="Project"
+                                    Value="@ResourceManagerPage.NewAllocation.Project"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourceManagerPage.NewAllocation.Project = e"
+                                    InputType="InputTypes.text" />
+                </div>
+                <div class="mb-05">
+                    <LabelTextField Label="Demand / Request"
+                                    Value="@ResourceManagerPage.NewAllocation.Demand"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourceManagerPage.NewAllocation.Demand = e"
+                                    InputType="InputTypes.text" />
+                </div>
+                <div class="mb-05">
+                    <LabelTextField Label="Value"
+                                    Value="@ResourceManagerPage.NewAllocation.Value"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourceManagerPage.NewAllocation.Value = e"
+                                    InputType="InputTypes.text" />
+                </div>
+                <div class="mb-03">
+                    <MatCaption>Work Type</MatCaption>
+                </div>
+                <div class="mb-05">
+                    @foreach (var type in AppConstants.WorkTypes)
+                    {
+                        <MatCheckbox Class="mb-03"
+                                     Label="@type"
+                                     Value="@(
+                                        CommonUtils.IsValidCollection(ResourceManagerPage.NewAllocation.WorkTypes) && 
+                                        ResourceManagerPage.NewAllocation.WorkTypes.FirstOrDefault(i => i.Name == type) is KeyValue)"
+                                     ValueChanged="(bool? e) => UpdateNewAllocationWorkType(type, e)" />
+                    }
+                </div>
+
+                break;
+            default:
+                break;
+        }
+    </Content>
+    <ActionContent>
+        @switch (ResourceManagerPage.ModalType)
+        {
+            case ModalTypes.addallocation:
+                <MatButton Class="mr-05"
+                           Outlined="true"
+                           Disabled="@ResourceManagerPage.AppModalDetails.CanEdit"
+                           @onclick="() => ToggleAddAllocation(ModalTypes.close)">Cancel</MatButton>
+
+                @if (ResourceManagerPage.AppModalDetails.CanEdit)
+                {
+                    <MatProgressCircle Size="@MatProgressCircleSize.Small" />
+                }
+
+                <MatButton Unelevated="true"
+                           Disabled="@ResourceManagerPage.AppModalDetails.CanEdit"
+                           @onclick="() => ToggleAddAllocation(ModalTypes.saveallocation)">Save</MatButton>
+
+                break;
+            default:
+                break;
+        }
+    </ActionContent>
+</AppModal>

@@ -1,0 +1,47 @@
+﻿@using TeamApps.Shared
+@using Core.Utilities
+@inherits TeamStatsBase
+
+<div class="mb-05 ft-1 bold">Team Stats</div>
+<MatCard Class="fullwidth">
+    <MatCardContent Class="p-05">
+        <div class="row mb-05">
+            <div class="mr-05">
+                <LabelTextField Label="Supervisor"
+                                SelectOptions="Supervisors.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                OnTextChange="e => TeamStatsPage.Supervisor = e"
+                                InputType="InputTypes.select" />
+            </div>
+            <div class="mr-05">
+                <LabelTextField Label="Year"
+                                SelectOptions="TeamStatsPage.Years.Select((i, index) => new SelectOption { Text = i.ToString(), Value = i.ToString() })"
+                                OnTextChange="e => TeamStatsPage.Year = e"
+                                InputType="InputTypes.select" />
+            </div>
+            <div class="mr-05 pt-05">
+                <IconButton Icon="autorenew"
+                            ToolTip="Get Resources Stats"
+                            OnClick="FetchResourcesAsync" />
+            </div>
+            @if (TeamStatsPage.IsLoading)
+            {
+                <div>
+                    <Loader Message="@TeamStatsPage.LoadingMessage" />
+                </div>
+            }
+        </div>
+        <div class="row d-flex">
+            @if (CommonUtils.IsValidCollection(TeamStatsPage.ResourcesStats))
+            {
+                foreach (var resource in TeamStatsPage.ResourcesStats)
+                {
+                    <AppChart Class="mr-05"
+                              Title="@($"{resource.Title} {TeamStatsPage.Year}")"
+                              Labels="@resource.Labels"
+                              Values="@resource.Values"
+                              Type="ChartTypes.pie" />
+                }
+            }
+        </div>
+    </MatCardContent>
+</MatCard>

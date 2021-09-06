@@ -1,0 +1,31 @@
+﻿<div class="d-flex @Class">
+    <div class="mr-05">
+        <div class="circle bold ft-08 p-05 mt-05 @UIHelper.GetAvatarClass(Name, IsHeader)">
+            @firstChar&nbsp;@secondChar
+        </div>
+    </div>
+    <div>
+        <div class="@(IsHeader ? "mt-08" : "mb-03")">
+            <MatBody2>@Name</MatBody2>
+        </div>
+        @if (!IsHeader)
+        {
+            <div>
+                @ChildSection
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Class { get; set; }
+
+    [Parameter] public string Name { get; set; }
+
+    [Parameter] public bool IsHeader { get; set; }
+
+    [Parameter] public RenderFragment ChildSection { get; set; }
+
+    private char? firstChar => Name.Split(" ")?.FirstOrDefault().ToUpper()[0];
+    private char? secondChar => Name.Split(" ")?.Length > 1 ? Name.Split(" ")[1].ToUpper()[0] : '\0';
+}

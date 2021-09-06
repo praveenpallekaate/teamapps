@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamApps.UI", "TeamApps.UI\TeamApps.UI.csproj", "{C02A8446-93A2-4AB3-B080-EBF67691B1EE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamApps.Shared", "TeamApps.Shared\TeamApps.Shared.csproj", "{3F98A168-347E-46A1-B6FC-D7A6A0209717}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CFA15042-801F-4AFB-8180-F3B41E80A2EC}"
+	ProjectSection(SolutionItems) = preProject
+		nuget.config = nuget.config
+		StyleCop.LocalDev.ruleset = StyleCop.LocalDev.ruleset
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C02A8446-93A2-4AB3-B080-EBF67691B1EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C02A8446-93A2-4AB3-B080-EBF67691B1EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C02A8446-93A2-4AB3-B080-EBF67691B1EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C02A8446-93A2-4AB3-B080-EBF67691B1EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F98A168-347E-46A1-B6FC-D7A6A0209717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F98A168-347E-46A1-B6FC-D7A6A0209717}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F98A168-347E-46A1-B6FC-D7A6A0209717}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F98A168-347E-46A1-B6FC-D7A6A0209717}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A767B9B5-2AE2-4613-95E2-E65DEF592586}
+	EndGlobalSection
+EndGlobal

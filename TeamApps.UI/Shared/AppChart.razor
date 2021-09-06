@@ -1,0 +1,94 @@
+﻿@using ChartJs.Blazor
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Util
+@using ChartJs.Blazor.PieChart
+@using Core.Utilities
+@using TeamApps.Shared 
+
+<div class="@Class">
+    <Chart Config="_config" />
+</div>
+
+@code {
+    [Parameter] public string Class { get; set; }
+
+    [Parameter] public string Title { get; set; }
+
+    [Parameter] public int[] Values { get; set; } = new int[] { };
+
+    [Parameter] public string[] Labels { get; set; }
+
+    [Parameter] public ChartTypes Type { get; set; } = ChartTypes.pie;
+
+    private PieConfig _config;
+    private string _grey = ColorUtil.ColorHexString(232, 232, 232);
+
+    protected override void OnInitialized()
+    {
+        switch (Type)
+        {
+            case ChartTypes.pie:
+            case ChartTypes.donut:
+                PieDataset<int> dataset = new PieDataset<int>();
+
+                if (Type == ChartTypes.pie)
+                {
+                    _config = new PieConfig();
+                }
+                else
+                {
+                    _config = new PieConfig(true);
+                }
+
+                _config.Options = new PieOptions
+                {
+                    Responsive = true,
+
+                    Title = new OptionsTitle
+                    {
+                        Display = true,
+                        Text = Title
+                    }
+                };
+
+                if (CommonUtils.IsValidCollection(Values))
+                {
+                    if (Values.Length == 2)
+                    {
+                        int val = Values[0];
+
+                        dataset = new PieDataset<int>(Values)
+                        {
+                            BackgroundColor = Type == ChartTypes.pie
+                            ? UIHelper.GlobalChartColors
+                            : new[]
+                                {
+                                    val > 79 ? UIHelper.GlobalChartColors[2] : (val > 49 ? UIHelper.GlobalChartColors[1] : UIHelper.GlobalChartColors[0]),
+                                    _grey
+                                }
+                        };
+                    }
+                    else
+                    {
+                        dataset = new PieDataset<int>(Values)
+                        {
+                            BackgroundColor = UIHelper.GlobalChartColors
+                        };
+                    }
+
+                    foreach (string label in Labels)
+                    {
+                        _config.Data.Labels.Add(label);
+                    }
+                }
+
+                _config.Data.Datasets.Add(dataset);
+
+                break;
+            case ChartTypes.bar:
+                break;
+            default:
+                break;
+        }
+    }
+}

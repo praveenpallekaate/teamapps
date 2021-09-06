@@ -1,0 +1,34 @@
+﻿@inherits MainLayoutBase
+@using TeamApps.Shared
+
+<CascadingValue Value="@MainLayoutPageDetails">
+    <MatThemeProvider Theme="@AppTheme">
+        <div class="container fill @CurrentTheme">
+            <div class="row d-flex p-1">
+                <div class="app-title pt-05 pl-1 pr-05">Team Apps</div>
+                <div class="pt-09">
+                    @if (CurrentTheme == AppThemes.light.ToString())
+                    {
+                        <IconButton Class="header" Icon="brightness_3" ToolTip="Dark Theme" OnClick="() => ToggleTheme(AppThemes.dark)" />
+                    }
+                    else
+                    {
+                        <IconButton Class="header" Icon="brightness_5" ToolTip="Light Theme" OnClick="() => ToggleTheme(AppThemes.light)" />
+                    }
+                </div>
+                <div class="flex-grow-1"></div>
+                <div>
+                    <LoginDisplay />
+                </div>
+            </div>
+            <div class="row d-flex">
+                <div class="sidebar p-1 @MenuMode">
+                    <NavMenu />
+                </div>
+                <div class="flex-grow-1 app-page">
+                    @Body
+                </div>
+            </div>
+        </div>
+    </MatThemeProvider>
+</CascadingValue>

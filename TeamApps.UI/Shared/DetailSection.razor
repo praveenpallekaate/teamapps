@@ -1,0 +1,56 @@
+﻿@inherits DetailSectionBase
+@using Core.Utilities
+@using TeamApps.Shared
+
+<div class="@DetailSectionPage.Class">
+    <div class="row d-flex">
+        <div class="flex-grow-1">
+            <MatBody1>@DetailSectionPage.EditedSection.Name</MatBody1>
+        </div>
+        @if (!DetailSectionPage.IsDisabled)
+        {
+            <div class="d-flex">
+                @switch (DetailSectionPage.Mode)
+                {
+                    case Modes.add:
+                        <div>
+                            <IconButton Icon="done_outline" ToolTip="Update" OnClick="async () => await ToggleModeAsync(Modes.read)" />
+                        </div>
+
+                        break;
+                    case Modes.edit:
+                        <div class="mr-05">
+                            <IconButton Icon="cancel" ToolTip="Cancel" OnClick="async () => await ToggleModeAsync(Modes.read)" />
+                        </div>
+                        <div>
+                            <IconButton Icon="done_outline" ToolTip="Update" OnClick="async () => await ToggleModeAsync(Modes.read, true)" />
+                        </div>
+
+                        break;
+                    case Modes.read:
+                        <div>
+                            <IconButton Icon="edit" ToolTip="Edit" OnClick="async () => await ToggleModeAsync(Modes.edit)" />
+                        </div>
+
+                        break;
+                    default:
+                        break;
+                }
+            </div>
+        }
+    </div>
+    <MatDivider/>
+    @if (CommonUtils.IsValidCollection(DetailSectionPage?.EditedSection?.KeyValues))
+    {
+        foreach (var item in DetailSectionPage.EditedSection.KeyValues)
+        {
+            <div class="row mt-03 mb-05">
+                <SectionField Detail="@item"
+                              ParentId="@item.Id"
+                              Mode="@DetailSectionPage.Mode"
+                              OnUpdate="UpdateSectionPushToParent"/>
+            </div>
+            <MatDivider/>
+        }
+    }
+</div>

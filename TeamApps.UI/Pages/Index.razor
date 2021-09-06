@@ -1,0 +1,264 @@
+﻿@page "/"
+@using Core.Utilities
+@using TeamApps.Shared 
+@inherits IndexBase
+@inject NavigationManager NavigationManager
+
+<div class="page-content fill page-buff">
+    @if (MainLayoutPageDetails.IsLoading)
+    {
+        <Loader Message="@MainLayoutPageDetails.LoadingMessage" />
+    }
+    @if (!MainLayoutPageDetails.IsLoading && IndexPageDetails.IsLoading)
+    {
+        <Loader Message="@IndexPageDetails.LoadingMessage" />
+    }
+
+    @*Add team title buttons*@
+    @if (!MainLayoutPageDetails.IsLoading && !IndexPageDetails.IsLoading)
+    {
+        <div class="row d-flex">
+            <div class="flex-grow-1 mr-05 ft-125 bold">
+                Teams
+            </div>
+            <div>
+                @if (IndexPageDetails.CanEdit)
+                {
+                    <IconButton Icon="add" ToolTip="Add Team" OnClick="() => HandleAddAsync(ModalTypes.addteam)" />
+                }
+            </div>
+        </div>
+        <MatDivider />
+    }
+
+    @*Team and apps tiles*@
+    @if (CommonUtils.IsValidCollection(IndexPageDetails.TeamsDetails))
+    {
+        foreach (var team in IndexPageDetails.TeamsDetails)
+        {
+            <div class="mt-1">
+                <div class="row pt-15 pb-05">
+                    <div class="mr-11 mt-05">
+                        <MatBody1 Class="text-upper">@team.Name</MatBody1>
+                    </div>
+                    <div class="mt-05">
+                        <MatChip Label="@team.ApplicationCount.ToString()" />
+                    </div>
+                    <div class="mt-04">
+                        @if (IndexPageDetails.CanEdit)
+                        {
+                            <IconButton Icon="add" ToolTip="Add Application" OnClick="() => HandleAddAsync(ModalTypes.addapplication)" />
+                        }
+                    </div>
+                </div>
+                <MatDivider />
+                <div class="d-flex pt-1 pb-05">
+                    @foreach (var app in team.ApplicationDetails)
+                    {
+                        <MatCard Class="app-card mr-11" @onclick="() => HandleApplicationSelect(app.Id)">
+                            <MatCardContent Class="pt-05 pr-05 pb-05 pl-1">
+                                <div class="mb-2">
+                                    <MatBody2>@app.Name</MatBody2>
+                                </div>
+                                
+                                @*Application attributes*@
+                                <div class="d-flex flex-row-reverse">
+                                    @if (
+                                     !string.IsNullOrEmpty(app.TopEnvironment) ||
+                                     !string.IsNullOrEmpty(app.HostedType) ||
+                                     app.WorkIsActive)
+                                    {
+                                        if (!string.IsNullOrEmpty(app.TopEnvironment))
+                                        {
+                                            <MatTooltip Tooltip="@("Application is deployed to " + app.TopEnvironment)">
+                                                <MatChip Label="@app.TopEnvironment" RefBack="@context"/>
+                                            </MatTooltip>
+                                        }
+
+                                        if (!string.IsNullOrEmpty(app.HostedType))
+                                        {
+                                            <MatTooltip Tooltip="@("Application is hosted in " + app.HostedType)">
+                                                <MatChip Class="mr-05"
+                                                         LeadingIcon="@HostingIcon(app.HostedType)"
+                                                         Label="@(app.HostedType == "Other" ? "Other" : string.Empty)"
+                                                         RefBack="@context"/>
+                                            </MatTooltip>
+                                        }
+
+                                        if (app.WorkIsActive)
+                                        {
+                                            <MatTooltip Tooltip="This application has active work">
+                                                <MatChip Class="mr-05" LeadingIcon="fast_forward" RefBack="@context"/>
+                                            </MatTooltip>
+                                        }
+                                    }
+                                    else if (CommonUtils.IsValidCollection(app.Tags))
+                                    {
+                                        for (int i = 0; i < (app.Tags.Length > 2 ? 2 : app.Tags.Length); i++)
+                                        {
+                                            <MatChip Class="mr-05" Label="@app.Tags[i]" />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MatCaption>@app.DetailsMessage</MatCaption>
+                                    }
+                                </div>
+                            </MatCardContent>
+                        </MatCard>
+                    }
+                </div>
+            </div>
+            <MatDivider />
+        }
+    }
+    else if ((!MainLayoutPageDetails.IsLoading && !IndexPageDetails.IsLoading) && !CommonUtils.IsValidCollection(IndexPageDetails.TeamsDetails))
+    {
+        <MatH6 Class="mt-1 mb-1">No teams found yet, hold on!!</MatH6>
+        <Loader Message="@IndexPageDetails.LoadingMessage" />
+    }
+</div>
+
+@*Page modal*@
+<AppModal AppModalDetails="@IndexPageDetails.AppModalDetails">
+    <Content>
+        @switch (IndexPageDetails.ModalType)
+        {
+            case ModalTypes.addteam:
+                <div class="row">
+                    <LabelTextField Label="Team Name" 
+                                    Value="@IndexPageDetails.NewTeamName" 
+                                    Error="@IndexPageDetails.NewTeamNameInvalid"
+                                    HelperText="@(IndexPageDetails.NewTeamNameInvalid ? "Invalid Team Name" : "")"
+                                    IsDisabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                                    IsFullWidth=true
+                                    OnTextChange="@(e => IndexPageDetails.NewTeamName = e)"
+                                    InputType="InputTypes.text"/>
+                </div>
+
+                break;
+            case ModalTypes.addapplication:
+                <div>
+                    <div class="mb-05">
+                        <LabelTextField Label="Select Team" 
+                                        Value="@IndexPageDetails.NewApplication.Team"
+                                        SelectOptions="@IndexPageDetails.ExistingTeams.Select(i => new SelectOption { Text = i, Value = i.ToTrimmedLower() })"
+                                        Error="@IndexPageDetails.NewTeamNameInvalid"
+                                        HelperText="@(IndexPageDetails.NewTeamNameInvalid ? "Invalid Team" : "")"
+                                        IsDisabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                                        IsFullWidth=true
+                                        OnTextChange="@(e => IndexPageDetails.NewApplication.Team = e)"
+                                        InputType="InputTypes.select"/>
+                    </div>
+                    <div class="mb-05">
+                        <LabelTextField Label="Application Name" 
+                                        Value="@IndexPageDetails.NewApplication.Name"
+                                        Error="@IndexPageDetails.NewApplicationNameInvalid"
+                                        HelperText="@(IndexPageDetails.NewApplicationNameInvalid ? "Invalid Application Name" : "")"
+                                        IsDisabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                                        IsFullWidth=true
+                                        OnTextChange="@(e => IndexPageDetails.NewApplication.Name = e)"
+                                        InputType="InputTypes.text"/>
+                    </div>
+                    <div class="d-flex mb-05">
+                        <div class="mr-05">
+                            <LabelTextField Label="Tag"
+                                            Value="@IndexPageDetails.NewTag"
+                                            IsDisabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                                            IsFullWidth=true
+                                            OnTextChange="@(e => IndexPageDetails.NewTag = e)"
+                                            InputType="InputTypes.text" />
+                        </div>
+                        <div class="mt-08">
+                            <IconButton Icon="add"
+                                        ToolTip="Add tag"
+                                        OnClick="HandleTagAdd"/>
+                        </div>
+                    </div>
+                    @if (CommonUtils.IsValidCollection(IndexPageDetails.NewApplication.Tags))
+                    {
+                        <div>
+                            @foreach (var tag in IndexPageDetails.NewApplication.Tags)
+                            {
+                                <MatChip Class="mr-05" Label="@tag" />
+                            }
+                        </div>
+                    }
+                </div>
+
+                break;
+            case ModalTypes.close:
+                break;
+            default:
+                break;
+        }
+    </Content>
+    <ActionContent>
+        @switch (IndexPageDetails.ModalType)
+        {
+            case ModalTypes.addteam:
+                <MatButton Class="mr-05"
+                           Outlined="true"
+                           Disabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                           @onclick="() => HandleAddAsync(ModalTypes.close)">Cancel</MatButton>
+
+                @if (IndexPageDetails.AppModalDetails.CanEdit)
+                {
+                    <MatProgressCircle Size="@MatProgressCircleSize.Small" />
+                }
+
+                <MatButton Unelevated="true"
+                           Disabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                           @onclick="() => HandleAddAsync(ModalTypes.saveteam)">Save</MatButton>
+
+                break;
+            case ModalTypes.addapplication:
+                <MatButton Class="mr-05"
+                           Outlined="true"
+                           Disabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                           @onclick="() => HandleAddAsync(ModalTypes.close)">Cancel</MatButton>
+
+                @if (IndexPageDetails.AppModalDetails.CanEdit)
+                {
+                    <MatProgressCircle Size="@MatProgressCircleSize.Small" />
+                }
+
+                <MatButton Unelevated="true"
+                           Disabled="@IndexPageDetails.AppModalDetails.CanEdit"
+                           @onclick="() => HandleAddAsync(ModalTypes.saveapplication)">Save</MatButton>
+
+                break;
+            case ModalTypes.close:
+                break;
+            default:
+                break;
+        }
+    </ActionContent>
+</AppModal>
+
+@code {
+    private void HandleApplicationSelect(int id)
+    {
+        NavigationManager.NavigateTo($"/app-details/{id}");
+    }
+
+    private string HostingIcon(string val)
+    {
+        string result = string.Empty;
+
+        if (val == "OnPremise")
+        {
+            result = "dns";
+        }
+        else if (val == "Cloud")
+        {
+            result = "cloud";
+        }
+        else if (val == "Hybrid")
+        {
+            result = "cloud_download";
+        }
+
+        return result;
+    }
+}

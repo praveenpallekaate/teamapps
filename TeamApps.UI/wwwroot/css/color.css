@@ -1,0 +1,88 @@
+﻿:root {
+    --dark1: #212121;
+    --dark2: #424242;
+    --dark3: #616161;
+    --dark4: #fce4ec;
+    --light1: #c14559;
+    --light2: #d3786c;
+    --light3: #fafafa;
+    --light4: #424242;
+    --error: red;
+    --avatar1: #5b6770;
+    --avatar2: #5d7975;
+    --avatar3: #7a99ac;
+    --avatar4: #584446;
+    --secondary-text: #9e9e9e;
+    --red: #ff6384;
+    --amber: #ff873a;
+    --green: #00ac66;
+}
+
+.container.dark {
+    background-color: var(--dark1);
+    background-image: linear-gradient(180deg, var(--dark1) 0%, var(--dark2) 70%);
+    color: var(--dark4);
+}
+
+.container.light {
+    background-color: var(--light1);
+    background-image: linear-gradient(180deg, var(--light1) 0%, var(--light2) 70%);
+    color: var(--dark4);
+}
+
+.dark .page-content {
+    background-color: var(--dark3);
+    color: var(--dark4);
+}
+
+.light .page-content {
+    background-color: var(--light3);
+    color: var(--light4);
+}
+
+.light .circle {
+    color: var(--dark4);
+}
+
+a.header,
+.dark .mdc-dialog__title,
+.mdc-button:not(:disabled).header,
+.mdc-list-item--selected {
+    color: var(--dark4);
+}
+
+.error {
+    color: var(--error);
+}
+
+.set1 {
+    background-color: var(--avatar1);
+}
+
+.set2 {
+    background-color: var(--avatar2);
+}
+
+.set3 {
+    background-color: var(--avatar3);
+}
+
+.set4 {
+    background-color: var(--avatar4);
+}
+
+.mat-caption.label {
+    color: var(--secondary-text);
+}
+
+.red-background {
+    background-color: var(--red);
+}
+
+.amber-background {
+    background-color: var(--amber);
+}
+
+.green-background {
+    background-color: var(--green);
+}

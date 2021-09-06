@@ -1,0 +1,136 @@
+﻿.mdc-list-item--selected {
+    font-weight: bold;
+}
+
+.mdc-typography--headline6,
+.mat-headline6,
+.mat-h6,
+.mat-h5,
+.mat-h4,
+.mat-h3,
+.mat-h2,
+.mat-h1,
+.mat-body1,
+.mat-body2,
+.mat-caption,
+.mdc-dialog__title,
+.mat-text-field-input,
+.mdc-select__selected-text,
+.mdc-typography {
+    font-family: 'Alata', sans-serif;
+}
+
+.app-card {
+    min-width: 15rem;
+}
+
+.mat-body1,
+.mat-body2,
+.mat-caption {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.mdc-table th {
+    font-size: 0.8rem;
+}
+
+/*section tile CSS*/
+@media only screen and (min-width: 300px) {
+    .section-div {
+        max-width: 25rem;
+    }
+}
+
+@media only screen and (min-width: 1080px) {
+    .section-div {
+        max-width: 30rem;
+    }
+}
+
+@media only screen and (min-width: 1280px) {
+    .section-div {
+        max-width: 35rem;
+    }
+}
+
+@media only screen and (min-width: 1680px) {
+    .section-div {
+        max-width: 43rem;
+    }
+}
+
+/*Timeline CSS*/
+
+.timeline {
+    margin: 0 auto;
+    max-width: 750px;
+    padding: 25px;
+    display: grid;
+    grid-template-columns: 1fr 3px 1fr;
+    font-family: 'Alata', sans-serif;
+}
+
+.timeline__component {
+    margin: 0 20px 20px 20px;
+}
+
+.timeline__component--bg {
+    padding: 1.5em;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 3px #d3786c;
+    border-radius: 10px;
+}
+
+/* LEAVE TILL LAST */
+.timeline__component--bottom {
+    margin-bottom: 0;
+}
+
+.timeline__middle {
+    position: relative;
+    background: #d3786c;
+}
+
+.timeline__point {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 15px;
+    height: 15px;
+    background: #c14559;
+    border-radius: 50%;
+}
+
+/* LEAVE TILL LAST */
+.timeline__point--bottom {
+    top: initial;
+    bottom: 0;
+}
+
+.timeline__date--right {
+    text-align: right;
+    color: #c14559;
+}
+
+.timeline__title {
+    margin: 0;
+    font-size: 1.15em;
+    font-weight: bold;
+    font-family: 'Alata', sans-serif;
+}
+
+.timeline__paragraph {
+    line-height: 1.5;
+    font-family: 'Alata', sans-serif;
+}
+
+.timeline__date {
+    color: #c14559;
+    font-family: 'Alata', sans-serif;
+}
+
+.titol {
+    font-style: italic;
+}

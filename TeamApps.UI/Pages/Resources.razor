@@ -1,0 +1,227 @@
+﻿@page "/resources"
+@using TeamApps.Shared
+@using Core.Utilities
+@inherits ResourceBase
+
+<div class="page-content fill page-buff">
+    @if (MainLayoutPageDetails.IsLoading)
+    {
+        <Loader Message="@MainLayoutPageDetails.LoadingMessage" />
+    }
+
+    @if (!MainLayoutPageDetails.IsLoading && ResourcePage.IsLoading)
+    {
+        <Loader Message="@ResourcePage.LoadingMessage" />
+    }
+
+    @if (!MainLayoutPageDetails.IsLoading && !ResourcePage.IsLoading)
+    {
+        <div class="row d-flex">
+            <div class="flex-grow-1 mr-05 ft-125 bold">Resource Management</div>
+            <div class="mr-05">
+                <MatButton Label="Team Stats"
+                           Outlined="true"
+                           OnClick="() => ResourcePage.ViewType = ResourcesViewTypes.TeamStats"/>
+            </div>
+            @if (ResourcePage.CanEdit)
+            {
+                <div>
+                    <IconButton Icon="add"
+                                ToolTip="Add Resource"
+                                OnClick="() => ToggleModal(ModalTypes.addresource)" />
+                </div>
+            }
+        </div>
+        <MatDivider Class="mb-05" />
+        <div class="row d-flex">
+            <div class="mr-05">
+                <LabelTextField Label="Team"
+                                SelectOptions="ResourcePage.Filter.Teams.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                OnTextChange="e => ResourcePage.Filter.SelectedTeam = e"
+                                InputType="InputTypes.select" />
+            </div>
+            <div class="mr-05">
+                <LabelTextField Label="Supervisor"
+                                SelectOptions="ResourcePage.Filter.Supervisors.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                OnTextChange="e => ResourcePage.Filter.SelectedSupervisor = e"
+                                InputType="InputTypes.select" />
+            </div>
+            <div class="mr-05">
+                <LabelTextField Label="Year"
+                                SelectOptions="ResourcePage.Filter.Years.Select((i, index) => new SelectOption { Text = i.ToString(), Value = i.ToString() })"
+                                OnTextChange="e => ResourcePage.Filter.SelectedYear = e"
+                                InputType="InputTypes.select" />
+            </div>
+            <div class="mr-05 pt-05">
+                <IconButton Icon="autorenew"
+                            ToolTip="Get Resources"
+                            OnClick="FetchResourcesAsync" />
+            </div>
+        </div>
+        <MatDivider Class="mb-05" />
+        <div class="scroll-area resources">
+            @if (ResourcePage.IsGridLoading)
+            {
+                <Loader Message="@ResourcePage.LoadingMessage" />
+            }
+            else
+            {
+                <div class="row">
+                    <div>
+                        <MatTable Items="ResourcePage.GridResources"
+                                  LoadInitialData="false"
+                                  Striped="true"
+                                  AllowSelection="true"
+                                  OnRowDbClick="HandleResourceClickAsync">
+                            <MatTableHeader>
+                                @foreach (var item in ResourcePage.GridHeader)
+                                {
+                                    <th><MatBody2>@item</MatBody2></th>
+                                }
+                            </MatTableHeader>
+                            <MatTableRow>
+                                <td><MatBody1>@context.Name</MatBody1></td>
+                                <td class="@GetColorClass(@context.Jan)"><MatBody1>@context.Jan</MatBody1></td>
+                                <td class="@GetColorClass(@context.Feb)"><MatBody1>@context.Feb</MatBody1></td>
+                                <td class="@GetColorClass(@context.Mar)"><MatBody1>@context.Mar</MatBody1></td>
+                                <td class="@GetColorClass(@context.Apr)"><MatBody1>@context.Apr</MatBody1></td>
+                                <td class="@GetColorClass(@context.May)"><MatBody1>@context.May</MatBody1></td>
+                                <td class="@GetColorClass(@context.Jun)"><MatBody1>@context.Jun</MatBody1></td>
+                                <td class="@GetColorClass(@context.Jul)"><MatBody1>@context.Jul</MatBody1></td>
+                                <td class="@GetColorClass(@context.Aug)"><MatBody1>@context.Aug</MatBody1></td>
+                                <td class="@GetColorClass(@context.Sep)"><MatBody1>@context.Sep</MatBody1></td>
+                                <td class="@GetColorClass(@context.Oct)"><MatBody1>@context.Oct</MatBody1></td>
+                                <td class="@GetColorClass(@context.Nov)"><MatBody1>@context.Nov</MatBody1></td>
+                                <td class="@GetColorClass(@context.Dec)"><MatBody1>@context.Dec</MatBody1></td>
+                            </MatTableRow>
+                        </MatTable>
+                    </div>
+                </div>
+                switch (ResourcePage.ViewType)
+                {
+                    case ResourcesViewTypes.ResourceDetails:
+                        <MatDivider Class="mb-05" />
+                        @if (ResourcePage.IsDetailLoading)
+                        {
+                            <Loader Message="@ResourcePage.LoadingMessage" />
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <ResourceManager Detail="ResourcePage.ResourceDetail"
+                                                 Teams="ResourcePage.Filter.Teams"
+                                                 Supervisors="ResourcePage.Filter.Supervisors"
+                                                 Disabled="!ResourcePage.CanEdit"
+                                                 OnUpdate="UpdateResourceAsync" />
+                            </div>
+                        }
+
+                        break;
+                    case ResourcesViewTypes.TeamStats:
+                        <MatDivider Class="mb-05" />
+                        <div class="row">
+                            <TeamStats Supervisors="ResourcePage.Filter.Supervisors"/>
+                        </div>
+
+                        break;
+                    case ResourcesViewTypes.None:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        </div>
+    }
+
+</div>
+
+@*Page modal*@
+<AppModal AppModalDetails="ResourcePage.AppModalDetails">
+    <Content>
+        @switch (ResourcePage.ModalType)
+        {
+            case ModalTypes.addresource:
+                <div class="row mb-05">
+                    <LabelTextField Label="Team"
+                                    SelectOptions="ResourcePage.Filter.Teams.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourcePage.NewResourceTeam = e"
+                                    InputType="InputTypes.select" />
+                </div>
+                <div class="row mb-05">
+                    <LabelTextField Label="Name"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourcePage.NewResourceName = e"
+                                    InputType="InputTypes.text" />
+                </div>
+                <div class="row mb-05">
+                    <LabelTextField Label="Email"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourcePage.NewResourceEmail = e"
+                                    InputType="InputTypes.text" />
+                </div>
+                <div class="row mb-05">
+                    <LabelTextField Label="Supervisor"
+                                    SelectOptions="ResourcePage.Filter.Supervisors.Select((i, index) => new SelectOption { Text = i, Value = i })"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourcePage.NewResourceSupervisor = e"
+                                    InputType="InputTypes.select" />
+                </div>
+                <div class="row mb-05">
+                    <LabelTextField Label="Start Date"
+                                    IsFullWidth="true"
+                                    OnDateChange="e => ResourcePage.NewResourceStartDate = e"
+                                    InputType="InputTypes.date" />
+                </div>
+                <div class="row mb-05">
+                    <LabelTextField Label="WOW Id"
+                                    IsFullWidth="true"
+                                    OnTextChange="e => ResourcePage.NewResourceWowId = e"
+                                    InputType="InputTypes.text" />
+                </div>
+
+                break;
+            default:
+                break;
+        }
+    </Content>
+    <ActionContent>
+        @switch (ResourcePage.ModalType)
+        {
+            case ModalTypes.addresource:
+                <MatButton Class="mr-05"
+                           Outlined="true"
+                           Disabled="ResourcePage.AppModalDetails.CanEdit"
+                           @onclick="() => ToggleModal(ModalTypes.close)">Cancel</MatButton>
+
+                @if (ResourcePage.AppModalDetails.CanEdit)
+                {
+                    <MatProgressCircle Size="@MatProgressCircleSize.Small" />
+                }
+
+                <MatButton Unelevated="true"
+                           Disabled="ResourcePage.AppModalDetails.CanEdit"
+                           @onclick="() => ToggleModal(ModalTypes.saveresource)">Save</MatButton>
+
+                break;
+            default:
+                break;
+        }
+    </ActionContent>
+</AppModal>
+
+@code {
+    private string GetColorClass(string val)
+    {
+        string result = string.Empty;
+
+        if (!string.IsNullOrEmpty(val))
+        {
+            int toCompare = int.Parse(val);
+
+            result = toCompare > 79 ? "green-background" : (toCompare > 49 ? "amber-background" : "red-background");
+        }
+
+        return result;
+    }
+}

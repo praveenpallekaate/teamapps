@@ -1,0 +1,39 @@
+﻿@using TeamApps.Shared
+
+@if (IsOpposite)
+{
+    <div class="timeline__component">
+        <div class="timeline__date timeline__date--right">@Item.Value</div>
+    </div>
+    <div class="timeline__middle">
+        <div class="timeline__point"></div>
+    </div>
+    <div class="timeline__component timeline__component--bg">
+        <h2 class="timeline__title">@Item.Name</h2>
+        <p class="timeline__paragraph">
+            @Item.Description
+        </p>
+    </div>
+}
+else
+{
+    <div class="timeline__component timeline__component--bg">
+        <h2 class="timeline__title">@Item.Name</h2>
+        <p class="timeline__paragraph">
+            @Item.Description
+        </p>
+    </div>
+
+    <div class="timeline__middle">
+        <div class="timeline__point"></div>
+    </div>
+    <div class="timeline__component">
+        <div class="timeline__date">@Item.Value</div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpposite { get; set; } = false;
+
+    [Parameter] public KeyValue Item { get; set; }
+}

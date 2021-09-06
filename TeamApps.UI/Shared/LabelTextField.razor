@@ -1,0 +1,131 @@
+﻿@using TeamApps.Shared
+
+<div class="@Class">
+    @switch (InputType)
+    {
+        case InputTypes.fieldvalue:
+            <div class="mb-03 @LabelClass">
+                <MatCaption Class="label">@Label</MatCaption>
+            </div>
+            <div class="@ValueClass">
+                <MatBody1>@Value</MatBody1>
+            </div>
+
+            break;
+        case InputTypes.text:
+            <MatTextField @bind-Value="@Value"
+                          Label="@Label"
+                          HelperText="@HelperText"
+                          Disabled="@IsDisabled"
+                          FullWidth="IsFullWidth"
+                          InputClass="@(Error ? "error" : "")" />
+
+            break;
+        case InputTypes.multilinetext:
+            <MatTextField @bind-Value="@Value"
+                          Label="@Label"
+                          HelperText="@HelperText"
+                          Disabled="@IsDisabled"
+                          FullWidth="IsFullWidth"
+                          TextArea="true"
+                          InputClass="@(Error ? "error" : "")" />
+
+            break;
+        case InputTypes.date:
+            <MatDatePicker @bind-Value="@DateValue"
+                           Format="@DateFormat"
+                           Label="@Label"
+                           HelperText="@HelperText"
+                           Disabled="@IsDisabled"
+                           FullWidth="IsFullWidth"
+                           InputClass="@(Error ? "error" : "")" />
+
+            break;
+        case InputTypes.select:
+            <MatSelect @bind-Value="@Value"
+                       Label="@Label"
+                       HelperText="@HelperText"
+                       TValue="string"
+                       FullWidth="IsFullWidth"
+                       Disabled="@IsDisabled">
+                <MatOptionString />
+                @foreach (var item in SelectOptions)
+                {
+                    <MatOptionString Value="@item.Value">@item.Text</MatOptionString>
+                }
+            </MatSelect>
+
+            break;
+        default:
+            break;
+    }
+</div>
+
+@code {
+    private string _tbText;
+    private DateTime? _tbDate;
+
+    [Parameter] public string Class { get; set; }
+
+    [Parameter] public string Label { get; set; }
+
+    [Parameter] public string LabelClass { get; set; }
+
+    [Parameter] public string ValueClass { get; set; }
+
+    [Parameter] public string BottomLabel { get; set; }
+
+    [Parameter] public string BottomLabelClass { get; set; }
+
+    [Parameter] public string AutoComplete { get; set; } = "off";
+
+    [Parameter] public string Placeholder { get; set; }
+
+    [Parameter] public string HelperText { get; set; }
+
+    [Parameter] public string Value
+    {
+        get => _tbText;
+        set
+        {
+            if (_tbText == value) return;
+
+            _tbText = value;
+            OnTextChange.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public string DateFormat { get; set; } = "MM-dd-yy";
+
+    [Parameter] public DateTime? DateValue
+    {
+        get => _tbDate;
+        set
+        {
+            if (_tbDate == value) return;
+
+            _tbDate = value;
+            OnDateChange.InvokeAsync(_tbDate);
+        }
+    }
+
+    [Parameter] public DateTime? MinimumDateValue { get; set; }
+
+    [Parameter] public DateTime? MaximumDateValue { get; set; }
+
+    [Parameter] public IEnumerable<SelectOption> SelectOptions { get; set; } = Enumerable.Empty<SelectOption>();
+
+    [Parameter] public EventCallback<string> OnTextChange { get; set; }
+
+    [Parameter] public EventCallback<DateTime?> OnDateChange { get; set; }
+
+    [Parameter] public InputTypes InputType { get; set; }
+
+    [Parameter] public bool IsFullWidth { get; set; } = false;
+
+    [Parameter] public bool IsDisabled { get; set; } = false;
+
+    [Parameter] public bool IsRequired { get; set; } = false;
+
+    [Parameter] public bool Error { get; set; } = false;
+}
